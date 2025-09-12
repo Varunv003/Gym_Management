@@ -1,0 +1,45 @@
+{
+	"info": {
+		"_postman_id": "cb2bffa3-149b-44f3-af76-894d22af0a13",
+		"name": "UserProfile",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32840967",
+		"_collection_link": "https://varun1-1613.postman.co/workspace/gym~4b836067-2e69-4471-943d-a02a3ae9e0e1/collection/32840967-cb2bffa3-149b-44f3-af76-894d22af0a13?action=share&source=collection_link&creator=32840967"
+	},
+	"item": [
+		{
+			"name": "updatePassword",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ2aXNoYWxAZXhhbXBsZS5jb20iLCJpYXQiOjE3NTcxOTA0OTUsImV4cCI6MTc1NzI3Njg5NX0.3VysUhm4ftMUkxi8_GBTwxSBcX0OOIVsUc5u0-36akGIWreTpLSonfLmjCJ7fmle6WtsAQ9On582gCHUt50fxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 7,\r\n    \"name\": \"vishal Doe\",\r\n    \"email\": \"vishal@example.com\",\r\n    \"password\": \"newnewpassword\",\r\n    \"number\": \"9292929922\",\r\n    \"address\": \"123 Main Street\",\r\n    \"role\": \"ROLE_USER\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/user/updateUser",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"updateUser"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

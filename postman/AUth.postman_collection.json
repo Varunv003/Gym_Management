@@ -1,0 +1,47 @@
+{
+	"info": {
+		"_postman_id": "8d75c188-0db3-42f5-a4d9-0ed24423a7c0",
+		"name": "AUth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32840967",
+		"_collection_link": "https://varun1-1613.postman.co/workspace/gym~4b836067-2e69-4471-943d-a02a3ae9e0e1/collection/32840967-8d75c188-0db3-42f5-a4d9-0ed24423a7c0?action=share&source=collection_link&creator=32840967"
+	},
+	"item": [
+		{
+			"name": "AdminLogin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"admin@example.com\",\r\n    \"password\": \"admin123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UserLogin",
+			"request": {
+				"method": "POST",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

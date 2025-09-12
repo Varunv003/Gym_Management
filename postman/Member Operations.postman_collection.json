@@ -1,0 +1,140 @@
+{
+	"info": {
+		"_postman_id": "726b4f13-0964-4995-b852-99537658775c",
+		"name": "Member Operations",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32840967",
+		"_collection_link": "https://varun1-1613.postman.co/workspace/gym~4b836067-2e69-4471-943d-a02a3ae9e0e1/collection/32840967-726b4f13-0964-4995-b852-99537658775c?action=share&source=collection_link&creator=32840967"
+	},
+	"item": [
+		{
+			"name": "getMembers",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTc1NjkzNDE1OCwiZXhwIjoxNzU3MDIwNTU4fQ.38HBsX3pgff6dmCzFzZhfJHuTj1AST-zbw3QPLWSqoEPi_jdXfrxvm_t01PJ7wv5iU_uD3n4Rbln_NBX7GN70A",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8080/api/members",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"members"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addMember",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTc1NjkzNDE1OCwiZXhwIjoxNzU3MDIwNTU4fQ.38HBsX3pgff6dmCzFzZhfJHuTj1AST-zbw3QPLWSqoEPi_jdXfrxvm_t01PJ7wv5iU_uD3n4Rbln_NBX7GN70A",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"varun Doe\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"dob\": \"2002-09-02\",\r\n    \"phone\": \"1234567890\",\r\n    \"address\": \"123 Main Street\",\r\n    \"membershipType\": \"BASIC\",  // or \"PREMIUM\", \"VIP\", etc. (an enum value)\r\n    \"payment\" : \"500\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/members",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"members"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateMember",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTc1NjkzNDE1OCwiZXhwIjoxNzU3MDIwNTU4fQ.38HBsX3pgff6dmCzFzZhfJHuTj1AST-zbw3QPLWSqoEPi_jdXfrxvm_t01PJ7wv5iU_uD3n4Rbln_NBX7GN70A",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Johny Doe\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"phone\": \"1234567890\",\r\n    \"membershipType\": \"BASIC\"  // or \"PREMIUM\", \"VIP\", etc. (an enum value)     // in ISO date format\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/members/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"members",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteMember",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTc1NzE4NzUwNywiZXhwIjoxNzU3MjczOTA3fQ.K6ZkTFvNavnkjeVmhNFDZHvefIWHGAdVtAZ3VPXURRAr-eVadx0Hdwv9-apZz__gjZ4YID6MKPkX3HWQ0cIj9w",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"John Doe\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"phone\": \"1234567890\",\r\n    \"membershipType\": \"BASIC\",  // or \"PREMIUM\", \"VIP\", etc. (an enum value)\r\n    \"joinDate\": \"2025-09-02\"     // in ISO date format\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/members/3",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"members",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
