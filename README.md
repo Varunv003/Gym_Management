@@ -47,9 +47,6 @@
 2. **Create MySQL database:**
    ```sql
    CREATE DATABASE gym_management_db;
-   CREATE USER 'gym_user'@'localhost' IDENTIFIED BY 'gym_password';
-   GRANT ALL PRIVILEGES ON gym_management_db.* TO 'gym_user'@'localhost';
-   ```
 
 3. **Configure Environment Variables:**
    
@@ -68,24 +65,11 @@
    # JWT Configuration
    JWT_SECRET=your_jwt_secret_key_here
    JWT_EXPIRATION=86400000
-   
-   # Server Configuration
-   SERVER_PORT=8080
-   ```
 
 4. **Run the application:**
    ```bash
    mvn spring-boot:run
    ```
-
-5. **Create admin user (run this SQL):**
-   ```sql
-   INSERT INTO users (name, email, password, number, address, role) 
-   VALUES ('Admin', 'admin@gym.com', 
-           '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqfcxVdHGWQk4j.8rGD8DAi', 
-           '1234567890', 'Admin Address', 'ROLE_ADMIN');
-   ```
-   **Login:** `admin@gym.com` / `password`
 
 ## 📡 API Endpoints
 
