@@ -36,7 +36,40 @@
 - Maven 3.8+
 - MySQL 8.0+
 
-### Setup
+
+## Docker Setup
+### 1. Clone the Repository
+
+```sh
+git clone https://github.com/Varunv003/Gym_Management.git
+
+cd Gym_Management
+```
+
+### 2. Configure Your Environment
+
+Copy the example environment file and edit your secrets:
+
+```sh
+cp .env.example .env
+```
+
+Edit `.env` and set strong passwords for `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD`.
+
+### 3. Run the Application
+
+Build and start the entire stack:
+
+```sh
+docker-compose up --build
+```
+
+The first run may take a few minutes to download images and build the app.  
+Once complete, access gym_management_app at: [http://localhost:8080](http://localhost:8080)
+
+---
+
+### Local Setup
 
 1. **Clone the repository:**
    ```bash
@@ -55,16 +88,8 @@
    cp .env.example .env
    ```
    
-   Edit `.env` file with your configuration:
-   ```properties
-   # Database Configuration
-   DB_URL=jdbc:mysql://localhost:3306/gym_management_db
-   DB_USERNAME=gym_user
-   DB_PASSWORD=your_password_here
+   Edit `.env` file with your configuration
    
-   # JWT Configuration
-   JWT_SECRET=your_jwt_secret_key_here
-   JWT_EXPIRATION=86400000
 
 4. **Run the application:**
    ```bash
