@@ -15,6 +15,7 @@
 - **📊 Analytics** - Member statistics and monthly revenue reports
 - **🛡️ Security** - BCrypt password hashing, input validation, CORS configuration
 - **🏗️ Clean Architecture** - Layered design with proper separation of concerns
+- **🐳 Containerised Deployment** - Run the entire application stack using Docker Compose.
 
 ## 🛠️ Tech Stack
 
@@ -28,6 +29,7 @@
 | **JWT** | - | Token-based Authentication |
 | **BCrypt** | - | Password Encryption |
 | **Maven** | 3.x | Build Tool |
+| **Docker** | - | Containerized Deployment |
 
 ## 🚀 Getting Started
 
