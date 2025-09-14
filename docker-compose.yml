@@ -32,6 +32,21 @@ services:
     networks:
       - gym-net
 
+  gym-frontend:
+    build: ./gym-frontend
+    container_name: gym-frontend
+    # restart: on-failure
+    ports:
+      - "5173:5173"
+      - "8081:8080"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+    networks:
+      - gym-net
+    
+
 volumes:
   mysql_data:
 
