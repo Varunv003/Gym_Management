@@ -11,6 +11,8 @@ import { AttendanceTracking } from "@/components/gym/AttendanceTracking";
 import { Analytics } from "@/components/gym/Analytics";
 import { Schedule } from "@/components/gym/Schedule";
 import { Settings } from "@/components/gym/Settings";
+import { jwtDecode } from "jwt-decode";
+import { useEffect } from "react";
 
 interface User {
   name: string;
@@ -165,77 +167,134 @@ const Index = () => {
 
   const BASE_URL = "http://localhost:8080"; // Replace with your actual backend URL
 
-  const handleLogin = async (credentials: { email: string; password: string; role: string }) => {
+  
+  const isTokenValid = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return false;
+
+    const decoded: { exp: number } = jwtDecode(token);
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    return decoded.exp > currentTime; // Check if token is still valid
+  };
+
+  const apiRequest = async (endpoint: string, options: RequestInit) => {
+    const token = localStorage.getItem("authToken");
+
+    // If no token or expired → logout
+    if (!token || !isTokenValid()) {
+      handleLogout();
+      return Promise.reject("Session expired");
+    }
+
+    const headers = {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+    };
+
+    const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+
+    if (response.status === 401) {
+      handleLogout();
+      return Promise.reject("Unauthorized");
+    }
+
+    if (!response.ok) {
+      return Promise.reject(`Error: ${response.statusText}`);
+    }
+
+    return response;
+  };
+
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decoded: { exp: number; role: string; email: string; name?: string } = jwtDecode(token);
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        if (decoded.exp > currentTime) {
+          setUser({
+            name: decoded.name || "User",
+            email: decoded.email,
+            role: decoded.role,
+          });
+        } else {
+          handleLogout();
+        }
+      } catch (e) {
+        handleLogout();
+      }
+    }
+  }, []);
+
+  
+  const handleLogin = async (credentials: { email: string; password: string }) => {
     try {
       const response = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password,
-        }),
+        body: JSON.stringify(credentials),
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const result = await response.json(); // ✅ Parse JSON
+
+        const token = result.data.jwt; // ✅ Extract JWT
+        localStorage.setItem("authToken", token);
+
+        // ✅ Decode user from token
+        const decoded: { exp: number; sub: string; role?: string; name?: string } = jwtDecode(token);
+
         setUser({
-          name: credentials.role === "ADMIN" ? "Admin User" : "Regular User",
-          email: credentials.email,
-          role: credentials.role,
+          name: decoded.name || "User",
+          email: decoded.sub,
+          role: decoded.role,
         });
+
         setShowLogin(false);
         setCurrentView("dashboard");
-        console.log("Login successful:", data);
       } else {
-        console.error("Login failed:", response.statusText);
         alert("Invalid credentials. Please try again.");
       }
     } catch (error) {
-      console.error("Error during login:", error);
-      alert("An error occurred while logging in. Please try again later.");
+      alert("An error occurred while logging in.");
     }
   };
 
+
   const handleLogout = () => {
+    localStorage.removeItem("authToken"); // Remove token
     setUser(null);
     setCurrentView("dashboard");
-    setShowLogin(false);
   };
 
-  const handleAddMember = async (newMember: Omit<Member, 'id' | 'joinDate' | 'subscriptionEndDate' | 'subscriptionStatus' | 'lastPaymentDate'>) => {
-    try {
-      const response = await fetch("http://localhost:8080/api/members", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer <your_token_here>", // Replace <your_token_here> with the actual token
-        },
-        body: JSON.stringify(newMember),
-      });
+  const handleAddMember = async (newMember: Omit<Member, 'id'>) => {
+    const response = await apiRequest(`/api/members`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newMember),
+    });
 
-      if (response.ok) {
-        const addedMember = await response.json();
-        setMembers((prev) => [...prev, addedMember]);
-        alert("Member added successfully!");
-      } else {
-        console.error("Failed to add member:", response.statusText);
-        alert("Failed to add member. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error while adding member:", error);
-      alert("An error occurred while adding the member.");
+    if (response.ok) {
+      const addedMember = await response.json();
+      setMembers((prev) => [...prev, addedMember]);
+    } else {
+      alert("Failed to add member.");
     }
   };
   
   const handleUpdateMember = async (id: number, updatedMember: Partial<Member>) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/members/${id}`, {
+      const response = await apiRequest(`/api/members/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer <your_token_here>", // Replace <your_token_here> with the actual token
         },
         body: JSON.stringify(updatedMember),
       });
@@ -256,13 +315,11 @@ const Index = () => {
     }
   };
 
+
   const handleDeleteMember = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/members/${id}`, {
+      const response = await apiRequest(`/api/members/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: "Bearer <your_token_here>", // Replace <your_token_here> with the actual token
-        },
       });
 
       if (response.ok) {
@@ -279,13 +336,13 @@ const Index = () => {
     }
   };
 
+
   const handleAddPayment = async (newPayment: Omit<Payment, 'id' | 'memberName' | 'membershipType'>) => {
     try {
-      const response = await fetch(`${BASE_URL}/api/payments`, {
+      const response = await apiRequest(`/api/payments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer <your_token_here>", // Replace <your_token_here> with the actual token
         },
         body: JSON.stringify({
           amount: newPayment.amount,
@@ -308,13 +365,13 @@ const Index = () => {
     }
   };
 
+
   const handleUpdatePayment = async (id: number, updatedPayment: Partial<Payment>) => {
     try {
-      const response = await fetch(`${BASE_URL}/api/payments/${id}`, {
+      const response = await apiRequest(`/api/payments/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer <your_token_here>", // Replace <your_token_here> with the actual token
         },
         body: JSON.stringify(updatedPayment),
       });
@@ -335,13 +392,11 @@ const Index = () => {
     }
   };
 
+
   const handleDeletePayment = async (id: number) => {
     try {
-      const response = await fetch(`${BASE_URL}/api/payments/${id}`, {
+      const response = await apiRequest(`/api/payments/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: "Bearer <your_token_here>", // Replace <your_token_here> with the actual token
-        },
       });
 
       if (response.ok) {
@@ -356,6 +411,7 @@ const Index = () => {
       alert("An error occurred while deleting the payment.");
     }
   };
+
 
   // Calculate dashboard stats with expiring memberships
   const today = new Date();
@@ -374,74 +430,77 @@ const Index = () => {
     expiringMemberships: expiringMembers.length,
   };
 
-  // Show landing page by default
-  if (!showLogin && !user) {
-    return <Landing onLoginClick={() => setShowLogin(true)} />;
-  }
 
-  // Show login form when login is clicked
-  if (showLogin && !user) {
-    return <LoginForm onLogin={handleLogin} />;
-  }
-
-  // Show member dashboard for USER role
-  if (user?.role === "USER") {
-    return <MemberDashboard user={memberUser} onLogout={handleLogout} />;
-  }
-
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case "dashboard":
-        return <Dashboard stats={dashboardStats} expiringMembers={expiringMembers} />;
-      case "members":
-        return (
-          <MemberManagement
-            members={members}
-            onAddMember={handleAddMember}
-            onUpdateMember={handleUpdateMember}
-            onDeleteMember={handleDeleteMember}
-          />
-        );
-      case "payments":
-        return (
-          <PaymentManagement
-            payments={payments}
-            members={members.map((m) => ({ id: m.id, name: m.name }))}
-            onAddPayment={handleAddPayment}
-            onUpdatePayment={handleUpdatePayment}
-            onDeletePayment={handleDeletePayment}
-          />
-        );
-      case "attendance":
-        return (
-          <AttendanceTracking
-            members={members.map((m) => ({
-              id: m.id,
-              name: m.name,
-              membershipType: m.membershipType,
-            }))}
-          />
-        );
-      case "analytics":
-        return <Analytics members={members} payments={payments} />;
-      case "schedule":
-        return <Schedule />;
-      case "settings":
-        return <Settings />;
-      default:
-        return <Dashboard stats={dashboardStats} expiringMembers={expiringMembers} />;
+  
+    // Show landing page by default
+    if (!showLogin && !user) {
+      return <Landing onLoginClick={() => setShowLogin(true)} />;
     }
+
+    // Show login form when login is clicked
+    if (showLogin && !user) {
+      return <LoginForm onLogin={handleLogin} />;
+    }
+
+    // Show member dashboard for USER role
+    if (user?.role === "USER") {
+      return <MemberDashboard user={memberUser} onLogout={handleLogout} />;
+    }
+
+    const renderCurrentView = () => {
+      switch (currentView) {
+        case "dashboard":
+          return <Dashboard stats={dashboardStats} expiringMembers={expiringMembers} />;
+        case "members":
+          return (
+            <MemberManagement
+              members={members}
+              onAddMember={handleAddMember}
+              onUpdateMember={handleUpdateMember}
+              onDeleteMember={handleDeleteMember}
+            />
+          );
+        case "payments":
+          return (
+            <PaymentManagement
+              payments={payments}
+              members={members.map((m) => ({ id: m.id, name: m.name }))}
+              onAddPayment={handleAddPayment}
+              onUpdatePayment={handleUpdatePayment}
+              onDeletePayment={handleDeletePayment}
+            />
+          );
+        case "attendance":
+          return (
+            <AttendanceTracking
+              members={members.map((m) => ({
+                id: m.id,
+                name: m.name,
+                membershipType: m.membershipType,
+              }))}
+            />
+          );
+        case "analytics":
+          return <Analytics members={members} payments={payments} />;
+        case "schedule":
+          return <Schedule />;
+        case "settings":
+          return <Settings />;
+        default:
+          return <Dashboard stats={dashboardStats} expiringMembers={expiringMembers} />;
+      }
+    };
+
+
+    return (
+      <div className="min-h-screen bg-background">
+        <Header user={user} onLogout={handleLogout} />
+        <div className="flex">
+          <Sidebar currentView={currentView} onViewChange={setCurrentView} />
+          <main className="flex-1">{renderCurrentView()}</main>
+        </div>
+      </div>
+    );
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header user={user} onLogout={handleLogout} />
-      <div className="flex">
-        <Sidebar currentView={currentView} onViewChange={setCurrentView} />
-        <main className="flex-1">{renderCurrentView()}</main>
-      </div>
-    </div>
-  );
-};
-
-export default Index;
+  export default Index;

@@ -9,7 +9,6 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -27,10 +26,10 @@ public class JwtService {
     // Generate JWT Token with claims
     public String generateToken(Map<String, Object> extraClaims, String username) {
         return Jwts.builder()
-                .claims(extraClaims)
-                .subject(username)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .setClaims(extraClaims)
+                .setSubject(username)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -44,19 +43,13 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-//    // Extract single claim using resolver
-//    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-//        final Claims claims = extractAllClaims(token);
-//        return claimsResolver.apply(claims);
-//    }
-
     // Extract all claims
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        return Jwts.parserBuilder() // Updated to use parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build() // Build the parser
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     // Check if token expired
